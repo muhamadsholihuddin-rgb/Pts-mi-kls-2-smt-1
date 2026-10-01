@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kuis Mahda - Kelas 2 MI</title>
+<style>
+:root{--bg:#fff7e6;--c:#ff8a3d;--ok:#2fb36b;--no:#e5484d;--ink:#2b2b3a;--card:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{text-align:center;font-size:26px;margin:8px 0}p.s{text-align:center;margin:0 0 16px;opacity:.7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--card);border:3px solid #ffd9b8;border-radius:18px;padding:16px 8px;text-align:center;font-size:16px;font-weight:600;cursor:pointer}
+.card b{display:block;font-size:34px}.card small{display:block;font-weight:400;opacity:.65;margin-top:4px}
+.bar{height:10px;background:#ffe2c7;border-radius:9px;overflow:hidden;margin:10px 0}.bar i{display:block;height:100%;background:var(--c);transition:width .3s}
+.q{background:var(--card);border-radius:18px;padding:18px;font-size:20px;font-weight:600;margin:12px 0;line-height:1.5}
+.opt{display:block;width:100%;text-align:left;font-size:19px;padding:14px 16px;margin:10px 0;border:3px solid #ffd9b8;background:#fff;border-radius:14px;cursor:pointer;color:var(--ink)}
+.opt.ok{background:#d8f5e5;border-color:var(--ok)}.opt.no{background:#fde0e0;border-color:var(--no)}
+.btn{display:block;width:100%;padding:14px;font-size:18px;font-weight:700;border:0;border-radius:14px;background:var(--c);color:#fff;margin-top:12px;cursor:pointer}
+.btn.g{background:#fff;color:var(--ink);border:3px solid #ffd9b8}
+.fb{text-align:center;font-weight:700;font-size:18px;min-height:26px}.big{font-size:64px;text-align:center;margin:8px 0}
+[dir=rtl],.ar{font-family:"Traditional Arabic","Amiri","Noto Naskh Arabic",serif;font-size:1.25em}
+.tm{text-align:center;font-size:22px;font-weight:700;margin:6px 0}.tm.w{color:var(--no)}
+</style></head><body><main id="app"></main>
+<script>
+// Format soal: [pertanyaan, [pilihan...], indeks jawaban benar]  -- kunci jawaban silakan dicek ulang
+const S=[
+{n:"Bahasa Inggris",i:"🔤",q:[
+["My mother cooks in the ....",["kitchen","living room","bedroom"],0],
+["Budi takes a bath in the ....",["garden","bathroom","dining room"],1],
+["Fatimah sits ... the chair.",["beside","in","on"],2],
+["Salman takes a nap in the ....",["garage","kitchen","bedroom"],2],
+["The picture is hanging ... the wall.",["under","behind","on"],2],
+["🐠 This is a/an ....",["aquarium","frame","table"],0],
+["What is this? 💡 This is ....",["vase","lamp","clock"],1],
+["Hamdan: “Open the ... please!”",["fan","table","door"],2],
+["Garage in Indonesian is ....",["halaman","teras","garasi"],2],
+["Ini sebuah kipas angin. In English:",["This is a fan.","This is a door.","This is a lamp."],0]]},
+{n:"Bahasa Indonesia",i:"📖",q:[
+["Judul teks “Rajin Menggosok Gigi” adalah ....",["gigi sehat","rajin menggosok gigi","gigi Damar sehat"],1],
+["Andika: “Perkenalkan, namaku Andika.” Andre bertanya ....",["Siapa namamu?","Dimana rumahmu?","Kapan kamu pulang?"],0],
+["Penulisan huruf kapital yang benar: ....",["rina pergi ke Surabaya.","Rina pergi ke surabaya.","Rina pergi ke Surabaya."],2],
+["Petani menanam padi. “Menanam” merupakan ....",["subjek","predikat","objek"],1],
+["... kamu pulang? Kata tanya yang sesuai ....",["Kapan","Siapa","Mengapa"],0],
+["Susi membuang sampah. Predikatnya ....",["Susi","membuang","sampah"],1],
+["Saat mendapat kado, perasaanmu akan ....",["sedih","takut","senang"],2]]},
+{n:"Bahasa Jawa",i:"🏯",q:[
+["Kabeh manungsa iku ora bisa urip ijen jalaran ....",["isih ana sing butuh wong liya","butuh bantuwane wong liya","kabeh duwe pepenginan"],1],
+["Rukun agawe santosa, crah agawe ....",["bungah","bubrah","susah"],1],
+["Sapa sing seneng cecongkrahan bisa njalari ....",["kabecikan","kawaskithan","karusakan"],2],
+["Menawa ing masyarakat kudu rukun karo ....",["kanca","sedulur","tangga"],2],
+["Marang sapa wae awake dhewe kudu tansah guyub rukun?",["kabeh","tangga wae","kanca wae"],0]]},
+{n:"PJOK",i:"⚽",q:[
+["Gerak lokomotor artinya gerak tubuh ....",["di tempat","berpindah tempat","membawa benda"],1],
+["Berjalan-jalan di taman adalah gerak ....",["lokomotor","nonlokomotor","manipulatif"],0],
+["Mengayunkan tangan termasuk gerak ....",["lokomotor","nonlokomotor","manipulatif"],1],
+["Melempar dan menangkap bola adalah gerak ....",["lokomotor","nonlokomotor","manipulatif"],2],
+["Saat memenangkan permainan, sikap yang tepat adalah ....",["sombong","menghargai lawan","mengejek lawan"],1],
+["Melempar bola ke gawang dengan tangan disebut permainan ....",["sepak bola","basket","bola tangan"],2]]},
+{n:"Matematika",i:"➕",q:[
+["Bilangan tiga puluh lima ditulis ....",["31","33","35"],2],
+["Bilangan 25 dibaca ....",["dua lima","dua dan lima","dua puluh lima"],2],
+["47 ... 22. Tanda yang tepat ....",["<","=",">"],2],
+["38 ... 42. Tanda yang tepat ....",["<","=",">"],0],
+["Dimas punya 14 kelereng, diberi Rendra 2. Sekarang ....",["18","16","15"],1],
+["Ibu punya 12 sawo, 2 busuk. Sisa ....",["10","11","12"],0],
+["Hasil 18 − 3 adalah ....",["20","17","15"],2],
+["Dita punya 19 kue, memberi adik 4. Sisa ....",["17","16","15"],2],
+["Nilai tempat puluhan pada bilangan 41 adalah angka ....",["1","4","41"],1],
+["Hasil 48 − 11 adalah ....",["37","59","36"],0]]},
+{n:"Pendidikan Pancasila",i:"🇮🇩",q:[
+["Belajar adalah kewajiban siswa, maka kita harus ....",["belajar jika disuruh","belajar jika ada ujian","belajar setiap hari"],2],
+["Tidak mencuci tangan sebelum makan, dampaknya ....",["kue terasa enak","kuman masuk ke tubuh","merasa kenyang"],1],
+["Contoh perkataan sopan adalah ....",["Kakak, ambilkan topi.","Terima kasih ibu atas hadiahnya.","Adik, cepat bersihkan kursinya."],1],
+["Lisa ingin meminjam mainan kakak. Lisa harus ....",["merebut","meminta izin","menangis"],1],
+["Andi menumpahkan minuman. Andi harus ....",["pura-pura tidak tahu","memanggil ibu","mengelap meja"],2],
+["Sebelum makan, kita harus ....",["cuci tangan","tidur","bermain"],0],
+["Ciri anak yang disiplin adalah ....",["menunda pekerjaan","melanggar aturan","dapat mengatur waktu"],2]]},
+{n:"Al-Qur'an Hadis",i:"🕌",q:[
+["Huruf hijaiyah yang pertama dinamakan ....",["ta'","alif","ba'"],1],
+["Huruf hijaiyah yang terakhir adalah ....",["و","ء","ي"],2],
+["Huruf ض dinamakan ....",["sin","ṣad","ḍad"],2],
+["Orang yang mempelajari Al-Qur'an dan mengajarkannya adalah ....",["sebaik-baik manusia","seburuk-buruk manusia","sejelek-jelek manusia"],0],
+["Gunnah secara bahasa artinya ....",["memasukkan","jelas","mendengung"],2],
+["Huruf gunnah ada dua, yaitu ....",["nun dan ba'","nun dan mim","mim dan ta'"],1],
+["Bacaan gunnah adalah bacaan yang mendengung sepanjang ....",["1 alif","2 alif","3 alif"],1]]},
+{n:"Akidah Akhlak",i:"🤲",q:[
+["Sebelum membaca Al-Qur'an kita membaca ....",["takbir","tahlil","ta'awuz"],2],
+["Asmaul Husna secara bahasa artinya ....",["sifat-sifat yang baik","nama-nama yang baik","nama yang banyak"],1],
+["Asmaul Husna berjumlah ....",["70","90","99"],2],
+["Allah Mahasuci adalah arti dari ....",["Al-Ḥakīm","Al-Quddūs","Al-ʿAzīz"],1],
+["Al-ʿAzīz artinya ....",["Mahasuci","Mahaperkasa","Maharaja"],1],
+["Orang yang meminta perlindungan kepada selain Allah disebut ....",["mukmin","musyrik","muslim"],1],
+["Tempat kembali setan di akhirat adalah ....",["surga","neraka","bumi"],1]]},
+{n:"Fikih",i:"🕋",q:[
+["Muwalat dalam azan artinya ....",["berturut-turut tidak dijeda","mengumandangkan dengan nyaring","menghadap kiblat"],0],
+["Ikamah dikumandangkan sebagai tanda salat segera ....",["diakhiri","dimulai","dibubarkan"],1],
+["Hukum membaca doa setelah azan adalah ....",["wajib","sunah","mubah"],1],
+["Orang azan disunahkan menghadap ke ....",["barat","timur","kiblat"],2],
+["Muazin pertama pada masa Nabi Muhammad saw. adalah ....",["Abu Bakar","Bilal bin Rabah","Ali bin Abi Thalib"],1],
+["Azan tidak dikumandangkan pada salat ....",["Asar","Jumat","istisqa"],2],
+["Syarat orang yang menyerukan azan harus ....",["kaya","berkedudukan","beragama Islam"],2]]},
+{n:"Bahasa Arab",i:"🔠",q:[
+["Arti dari مُوَظَّف adalah ....",["satpam","karyawan","ibu guru"],1],
+["Arti dari أَنَا adalah ....",["kamu","dia","saya"],2],
+["Kata حَارِس dibaca ....",["anā","huwā","ḥārisun"],2],
+["Bahasa Arab “ibu guru” adalah ....",["أُسْتَاذ","أُسْتَاذَة","حَارِس"],1],
+["Bahasa Arab “murid perempuan” adalah ....",["مُدَرِّسَة","تِلْمِيذَة","مُوَظَّفَة"],1],
+["Arti dari أُسْتَاذ adalah ....",["satpam","pegawai","guru"],2],
+["Mudirul madrasati artinya ....",["kepala sekolah","satpam","guru"],0]]}
+];
+const X={
+"Bahasa Inggris":[
+["There is a 🌀 ... in the living room.",["fan","radio","telephone"],0],
+["My father reads a newspaper in the ....",["living room","kitchen","dining room"],0],
+["There is a sofa to sit down in the ....",["living room","dining room","bedroom"],0],
+["That is a 💐 ....",["sofa","vase","fan"],1],
+["I plant many kinds of flowers in the ....",["garden","garage","bedroom"],0],
+["Zidan eats at the ....",["bathroom","garage","dining room"],2],
+["The weather is hot. Switch on the ....",["fan","curtain","blanket"],0],
+["The mirror is in the ....",["garden","bedroom","kitchen"],1],
+["Is the bed in the kitchen? No, it is in the ....",["dining room","living room","bedroom"],2],
+["There are a stove, a pan and a refrigerator in the ....",["living room","kitchen","bedroom"],1],
+["That is my bedroom. Artinya ....",["Itu rumahku","Itu kamar mandiku","Itu kamar tidurku"],2],
+["True or False: The soap and tooth paste are in the bathroom.",["True","False"],0],
+["True or False: Father plants the flower in the kitchen.",["True","False"],1],
+["🛏️ is a ....",["fan","bed","chair"],1],
+["🪞 is a ....",["lamp","mirror","chair"],1],
+["Kitchen artinya ....",["garasi","dapur","kebun"],1],
+["Garden artinya ....",["kebun","ruang tamu","kamar tidur"],0],
+["The book is on the table. Artinya ....",["Buku itu di bawah meja","Buku itu di atas meja","Buku itu di samping meja"],1]],
+"Bahasa Indonesia":[
+["Tokoh yang rajin menggosok gigi adalah ....",["Damar","Yoga","Ridho"],0],
+["Memeriksakan gigi hendaknya ke ....",["bidan","dokter mata","dokter gigi"],2],
+["Yang termasuk kalimat tanya adalah ....",["Damar melakukannya secara rutin.","Gigi Damar bersih dan sehat.","Mengapa perlu menggosok gigi?"],2],
+["Penulisan nama yang tepat: ....",["sintia putri","Sintia Putri Santika","Sintia putri santika"],1],
+["Setelah marah-marah hendaknya ....",["minta maaf","bermusuhan","menangis"],0],
+["Perasaan anak yang berteriak 😡 adalah ....",["marah","senang","sedih"],0],
+["Aldo memeriksakan mata ke ....",["dokter","penjual sayur","guru"],0],
+["Sayur yang baik untuk kesehatan mata adalah ....",["apel","wortel","daging ayam"],1],
+["Penglihatan Aldo kurang jelas, ia harus memakai ....",["sepatu","topi","kaca mata"],2],
+["Anak-anak bermain layang-layang. Perasaan mereka ....",["sedih","senang","kaget"],1],
+["Yang bukan termasuk perasaan adalah ....",["sedih","cantik","senang"],1],
+["... yang mengantarkanmu ke sekolah? Kata tanya ....",["Siapa","Kapan","Di mana"],0],
+["... jam kamu menunggu ibumu di sini? Kata tanya ....",["Apa","Bagaimana","Berapa"],2],
+["... kamu meletakkan bolpoinmu? Kata tanya ....",["Bagaimana","Siapa","Di mana"],2],
+["Lala memotret ayah dan ibu. Subjeknya ....",["Lala","memotret","ayah dan ibu"],0]],
+"Bahasa Jawa":[
+["Menawa ing ngomah kudu rukun karo ....",["kanca","tangga","sedulur"],2],
+["Menawa ing sekolahan kudu rukun karo ....",["kanca","sedulur","tangga"],0],
+["Guyub rukun jroning tandang gawe bisa njalari pegaweyan dadi ....",["abot","entheng","rekasa"],1],
+["Swara sing pangucapane padha karo swara asline diarani swara ....",["anteb","jejeg","miring"],1]],
+"PJOK":[
+["Gerakan melompat dalam permainan petualang cilik adalah gerak ....",["lokomotor","nonlokomotor","manipulatif"],0],
+["Bagas mengaku saat tertangkap. Ia menunjukkan sikap ....",["sportif","sombong","curang"],0],
+["Pemain tidak boleh ... demi mendapatkan kemenangan.",["curang","jujur","sportif"],0],
+["Gerak nonlokomotor dilakukan di tempat. Pernyataan ini ....",["Benar","Salah"],0],
+["Sikap sportif berarti kita harus selalu menang. Pernyataan ini ....",["Benar","Salah"],1],
+["Mengikuti aturan dalam permainan adalah contoh sikap sportif. Pernyataan ini ....",["Benar","Salah"],0],
+["Bekerja bersama untuk mencapai tujuan disebut ....",["kolaborasi","sikap sportif","gerak lokomotor"],0],
+["Jujur, adil, dan bermain sesuai aturan adalah ....",["kolaborasi","sikap sportif","gerak manipulatif"],1],
+["Tujuan menerapkan fair play adalah ....",["selalu menang","menumbuhkan sikap saling menghormati","curang"],1],
+["Meliuk, mengayun, dan membungkuk adalah gerak ....",["lokomotor","nonlokomotor","manipulatif"],1],
+["Yang termasuk gerak manipulatif adalah ....",["berlari mengelilingi lapangan","bermain lempar tangkap bola","menggerakkan tangan memutar"],1],
+["Dalam permainan menara gelas, kelompok menang jika ....",["menaranya cepat roboh","gelas disusun berderetan","menara paling tinggi dan kokoh"],2]],
+"Matematika":[
+["Bilangan yang jika ditambah 1 menjadi 20 adalah ....",["18","19","21"],1],
+["Bilangan yang terdiri dari 2 puluhan dan 8 satuan adalah ....",["28","38","82"],0],
+["Satuan pada bilangan 41 adalah ....",["1","4","41"],0],
+["Ana punya 20 cepit rambut, diberikan 11 kepada adik. Sisa ....",["9","10","11"],0],
+["Lala punya 15 buku tulis, dibelikan 4 lagi. Sekarang ....",["18","19","20"],1],
+["Urutan bilangan 21, 46, 32 dari yang terbesar ....",["21, 32, 46","46, 32, 21","32, 46, 21"],1],
+["25 = a + 5. Nilai a adalah ....",["30","20","5"],1],
+["Ayah membeli 16 apel, Ibu menambah 2. Jumlahnya ....",["16","18","19"],1],
+["Nana punya 15 apel, dibelikan 2 lagi. Sekarang ....",["15","16","17"],2],
+["Karet gelang merah 10, hijau 10. Jumlahnya ....",["15","17","20"],2],
+["Hasil 16 − 4 adalah ....",["12","17","19"],0],
+["Hasil 10 + 3 adalah ....",["13","15","17"],0],
+["Ibu membeli 20 apel, 12 busuk. Yang baik ....",["8","9","10"],0],
+["Hasil 19 − 8 adalah ....",["9","11","14"],1],
+["Hasil 18 − 11 adalah ....",["5","6","7"],2],
+["Lita punya 16 jeruk, memberi adik 6. Sisa ....",["10","12","22"],0],
+["Rina punya 18 buku, 12 sudah dipakai. Sisa ....",["4","6","8"],1],
+["Dira punya 3 ikat bambu (tiap ikat 10) dan 4 potong lagi. Jumlahnya ....",["7","34","43"],1]],
+"Pendidikan Pancasila":[
+["Olin sedang main game, Ibu menasihati agar tidur. Olin harus ....",["tetap bermain game","segera tidur","menonton televisi"],1],
+["Matahari terbit, ayam jantan berkokok. Saatnya ....",["bangun tidur","makan siang","pulang sekolah"],0],
+["Manfaat mandi sore adalah ....",["melepas lelah","badan bersih dan segar","menunda lapar"],1],
+["Ayu bermain boneka, Ibu minta tolong mencuci buah. Ayu harus ....",["tetap bermain","membantu ibu","menyuruh kakak"],1],
+["Memenuhi aturan harus dengan ....",["terpaksa","kesadaran","mengharapkan pujian"],1],
+["Rudi bermain game sampai larut malam. Dampaknya ....",["bangun kesiangan","mendapatkan hadiah","badan sehat"],0],
+["Salah satu kegiatan sebelum belajar adalah ....",["bermain","makan","berdoa"],2],
+["Manfaat mematuhi aturan sebelum tidur ....",["disayang orang tua","dapat tidur nyenyak","tidak bisa tidur"],1],
+["Hidup rukun membuat suasana menjadi ....",["tenteram dan damai","bermusuhan","bersemangat"],0],
+["Aturan melatih kita menjadi anak yang ....",["disiplin","malas","penakut"],0],
+["Jika tidak sengaja merusak barang, kita harus ....",["minta maaf","marah","lari"],0],
+["Sikap yang sesuai aturan di rumah: (2) belajar dan (3) membantu orang tua. Jawabannya ....",["(2) dan (3)","(1), (3), dan (4)","(2), (3), dan (4)"],0]],
+"Al-Qur'an Hadis":[
+["Bacaan gunnah kita pelajari dalam ilmu ....",["tafsir","tajwid","alam"],1],
+["Nun yang bertasydid dibaca dengan ....",["dengung","panjang","pendek"],0],
+["Hukum bacaan gunnah terjadi pada huruf ....",["nun dan ba'","nun dan mim","mim dan ta'"],1],
+["Harakat dalam bacaan gunnah adalah ....",["tasydid","fathah","sukun"],0],
+["Gunnah keluar dari ....",["pangkal hidung (khaisyum)","lidah","bibir"],0],
+["Huruf hijaiyah ke-20 adalah ....",["'ain","gain","fa'"],2],
+["Huruf yang tidak dapat disambung dengan huruf setelahnya adalah ....",["alif","ba'","sin"],0]],
+"Akidah Akhlak":[
+["Ta'awuz dibaca sebelum hal berikut, kecuali ketika akan ....",["buang air besar","membaca Al-Qur'an","melaksanakan suatu ibadah"],0],
+["Golongan manusia yang sulit diperdaya setan adalah ....",["laki-laki yang gagah","orang yang senantiasa minta perlindungan Allah","wanita yang lemah lembut"],1],
+["Allah melaknat orang yang meminta perlindungan kepada ....",["nabi","malaikat","selain Allah Swt."],2],
+["Ta'awuz adalah doa meminta ....",["kebaikan dunia dan akhirat","perlindungan dari godaan setan","keberkahan hidup"],1],
+["Kita mengucapkan ta'awuz agar terhindar dari godaan ....",["jin","manusia","setan"],2],
+["Alam semesta ini ada karena ....",["ada dengan sendirinya","Allah Swt. yang menciptakan","dikehendaki manusia"],1],
+["Manusia adalah makhluk yang daif. Daif artinya ....",["kuat","lemah","buruk"],1],
+["Yang memiliki kekuatan abadi adalah ....",["malaikat","Allah Swt.","orang beriman"],1],
+["Nama lain kalimat tayyibah ta'awuz adalah ....",["isti'azah","syirik","tahlil"],0]],
+"Fikih":[
+["Azan yang dikumandangkan dengan selain bahasa Arab hukumnya ....",["sah","tidak sah","boleh saja"],1],
+["Saat muazin mengucapkan “Ḥayya 'alaṣ-ṣalāh”, kita menjawab ....",["Lā ḥaula wa lā quwwata illā billāh","Allāhu akbar","Āmīn"],0],
+["Mustami' adalah ....",["orang yang mendengar azan","muazin","imam"],0],
+["Barisan dalam salat dinamakan ....",["saf","rukuk","sujud"],0],
+["Lafal tambahan dalam azan Subuh adalah ....",["Aṣ-ṣalātu khairum minan-naum","Ḥayya 'alaṣ-ṣalāh","Qad qāmatiṣ-ṣalāh"],0],
+["Setelah ikamah dikumandangkan, jamaah segera mengatur ....",["saf","makanan","pakaian"],0]],
+"Bahasa Arab":[
+["مُوَظَّفَة artinya ....",["tukang kebun","juru masak","karyawati"],2],
+["Orang tua kita di sekolah adalah ....",["satpam sekolah","bapak dan ibu guru","ibu kantin"],1],
+["Bahasa Arab “satpam” adalah ....",["أُسْتَاذ","حَارِس","مُوَظَّف"],1],
+["Bahasa Arab untuk “kepala sekolah” adalah ....",["وَلِيُّ الْفَصْلِ","بُسْتَانِيٌّ","مُدِيرُ الْمَدْرَسَةِ"],2],
+["بُسْتَانِيٌّ artinya ....",["tukang kebun","satpam","guru"],0],
+["هَذِهِ بَائِعَةٌ، هِيَ فِي الْمَقْصَفِ. Artinya ....",["Ini penjual perempuan, dia di kantin.","Ini guru laki-laki, dia di kelas.","Ini satpam, dia di halaman."],0]]
+};
+S.forEach(s=>s.q.push(...(X[s.n]||[])));
+const $=document.getElementById("app");let st={},T=null;const TL=30;
+function tick(){st.t--;const e=document.getElementById("tm");if(e){e.textContent="⏱️ "+st.t+" detik";e.classList.toggle("w",st.t<=10)}if(st.t<=0)pick(-1)}
+const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const best=()=>{try{return JSON.parse(localStorage.getItem("kuis")||"{}")}catch(e){return{}}};
+const save=(k,v)=>{try{const b=best();b[k]=Math.max(b[k]||0,v);localStorage.setItem("kuis",JSON.stringify(b))}catch(e){}};
+function home(){clearInterval(T);const b=best();
+$.innerHTML=`<h1>📚 Kuis Mahda</h1><p class="s">Kelas 2 MI · Semester 1 — pilih pelajaran!</p><div class="grid">`+
+S.map((s,k)=>`<div class="card" onclick="start(${k})"><b>${s.i}</b>${s.n}<small>${s.q.length} soal${b[k]!=null?" · terbaik "+b[k]+"%":""}</small></div>`).join("")+`</div>`}
+function start(k,only){st={k,qs:sh(only||S[k].q),n:0,ok:0,bad:[],t0:Date.now()};show()}
+function show(){const q=st.qs[st.n],o=sh(q[1].map((t,i)=>[t,i==q[2]]));st.o=o;st.done=0;st.t=TL;clearInterval(T);T=setInterval(tick,1000);
+$.innerHTML=`<div class="bar"><i style="width:${st.n/st.qs.length*100}%"></i></div><small>${S[st.k].n} · Soal ${st.n+1}/${st.qs.length}</small><div class="tm" id="tm">⏱️ ${TL} detik</div>
+<div class="q" dir="auto">${q[0]}</div>`+o.map((x,i)=>`<button class="opt" dir="auto" onclick="pick(${i})">${x[0]}</button>`).join("")+`<div class="fb" id="fb"></div><div id="nx"></div>`}
+function pick(i){if(st.done)return;st.done=1;clearInterval(T);const b=document.querySelectorAll(".opt"),r=i>=0&&st.o[i][1];
+st.o.forEach((x,j)=>{if(x[1])b[j].classList.add("ok")});
+if(r)st.ok++;else{if(i>=0)b[i].classList.add("no");st.bad.push(st.qs[st.n])}
+document.getElementById("fb").textContent=i<0?"Waktu habis! ⏰ Ayo lebih cepat!":r?"Benar! Hebat! 🎉":"Belum tepat, ayo semangat! 💪";
+const last=st.n==st.qs.length-1;
+document.getElementById("nx").innerHTML=`<button class="btn" onclick="${last?"end()":"st.n++;show()"}">${last?"Lihat Nilai 🏆":"Lanjut ➜"}</button>`}
+function end(){const p=Math.round(st.ok/st.qs.length*100);save(st.k,p);
+const e=p>=90?"🏆":p>=70?"🌟":p>=50?"👍":"💪";
+$.innerHTML=`<div class="big">${e}</div><h1>Nilai: ${p}</h1><p class="s">${st.ok} benar dari ${st.qs.length} soal · waktu ${Math.round((Date.now()-st.t0)/1000)} detik</p>`+
+(st.bad.length?`<button class="btn" onclick="start(${st.k},st.bad)">Ulangi soal yang salah (${st.bad.length})</button>`:"")+
+`<button class="btn g" onclick="start(${st.k})">Main lagi</button><button class="btn g" onclick="home()">Menu utama</button>`}
+home();
+</script></body></html>
